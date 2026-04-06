@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1a3a" />
+  <title>浪漫夏夜 · 海边表白</title>
+  <style>
+    /*
+     * 浪漫夏夜海边 — 纯 CSS 动态场景（无图片/视频）
+     * 配色：深海蓝 + lavender + 樱花粉柔光
+     */
+    :root {
+      --sea-deep: #06142e;
+      --sea-mid: #0c2744;
+      --sea-light: #143d5c;
+      --lilac: #c4b5fd;
+      --pink-glow: #ffc8e4;
+      --moon: #fff8e7;
+      --text-main: #fde8ff;
+      --text-soft: rgba(253, 232, 255, 0.88);
+      --shadow-pink: rgba(255, 160, 200, 0.45);
+      --fade-ms: 720ms;
+      --type-ch-speed: 42ms; /* 单字显现节奏 */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: "Microsoft YaHei UI", "PingFang SC", "Hiragino Sans GB", "Segoe UI",
+        system-ui, -apple-system, sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+      overflow-x: hidden;
+      background: var(--sea-deep);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ========== 夏夜海边背景层 ========== */
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(120% 90% at 50% 100%, var(--sea-light), var(--sea-mid) 42%, var(--sea-deep) 72%);
+    }
+
+    /* 粉色浪漫光晕（夜空下部 / 海平线） */
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10% 28%;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 85%, rgba(255, 182, 214, 0.35), transparent 62%),
+        radial-gradient(ellipse 50% 35% at 20% 70%, rgba(196, 181, 253, 0.22), transparent 55%),
+        radial-gradient(ellipse 45% 40% at 85% 65%, rgba(255, 173, 210, 0.2), transparent 55%);
+      pointer-events: none;
+      animation: glow-breathe 9s ease-in-out infinite alternate;
+    }
+    @keyframes glow-breathe {
+      from { opacity: 0.85; transform: scale(1); }
+      to { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* 柔和圆月 */
+    .moon {
+      position: absolute;
+      width: min(19vw, 120px);
+      height: min(19vw, 120px);
+      border-radius: 50%;
+      left: 18%;
+      top: 10%;
+      background:
+        radial-gradient(circle at 32% 28%, #fff 0%, var(--moon) 35%, #ead7b2 100%);
+      box-shadow:
+        0 0 42px rgba(255, 248, 220, 0.55),
+        0 0 90px rgba(196, 181, 253, 0.35);
+      opacity: 0.95;
+      animation: moon-drift 28s ease-in-out infinite alternate;
+    }
+    @keyframes moon-drift {
+      from { transform: translate(0, 0); }
+      to { transform: translate(22px, 10px); }
+    }
+
+    /* 闪烁星星 */
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-repeat: repeat;
+      background-size: 280px 280px;
+      opacity: 0.9;
+      background-image:
+        radial-gradient(1.3px 1.3px at 12% 18%, #fff 50%, transparent 52%),
+        radial-gradient(1px 1px at 72% 22%, rgba(255, 255, 255, 0.9) 50%, transparent 52%),
+        radial-gradient(1.2px 1.2px at 40% 65%, #fff 50%, transparent 52%),
+        radial-gradient(1px 1px at 88% 48%, rgba(255, 255, 255, 0.85) 50%, transparent 52%),
+        radial-gradient(1.4px 1.4px at 22% 42%, #fff 50%, transparent 52%),
+        radial-gradient(1px 1px at 56% 12%, rgba(255, 255, 255, 0.95) 50%, transparent 52%);
+      animation: star-twinkle 5.5s ease-in-out infinite alternate;
+    }
+    @keyframes star-twinkle {
+      from { opacity: 0.58; }
+      to { opacity: 1; }
+    }
+
+    /* 海浪层 */
+    .waves {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 32vh;
+      pointer-events: none;
+    }
+    .wave {
+      position: absolute;
+      left: -15%;
+      width: 130%;
+      bottom: 0;
+      height: 100%;
+      opacity: 0.55;
+      background: repeating-linear-gradient(
+        95deg,
+        rgba(12, 39, 68, 0) 0 10px,
+        rgba(255, 200, 230, 0.07) 10px 20px,
+        rgba(100, 180, 220, 0.12) 20px 32px,
+        rgba(12, 39, 68, 0) 32px 48px
+      );
+      border-radius: 46% 52% 0 0 / 18% 20% 0 0;
+      animation: wave-move linear infinite;
+    }
+    .wave:nth-child(1) { animation-duration: 12s; opacity: 0.38; bottom: -2vh; transform: scaleY(0.9); }
+    .wave:nth-child(2) { animation-duration: 9s; opacity: 0.48; bottom: 0; transform: scaleY(1); animation-delay: -2s; }
+    .wave:nth-child(3) { animation-duration: 7s; opacity: 0.6; bottom: 2vh; transform: scaleY(1.05); animation-delay: -4s; }
+    @keyframes wave-move {
+      from { transform: translateX(-5%) scaleY(1); }
+      to { transform: translateX(5%) scaleY(1.02); }
+    }
+
+    /* 萤火虫 */
+    .fireflies span {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff7c2 0%, rgba(255, 230, 150, 0.4) 60%, transparent 72%);
+      box-shadow: 0 0 12px rgba(255, 244, 180, 0.9);
+      opacity: 0;
+      animation: fly 14s ease-in-out infinite;
+    }
+    .fireflies span:nth-child(1) { left: 12%; bottom: 26%; animation-delay: 0s; }
+    .fireflies span:nth-child(2) { left: 28%; bottom: 18%; animation-delay: 2.2s; width: 5px; height: 5px; }
+    .fireflies span:nth-child(3) { left: 72%; bottom: 22%; animation-delay: 1s; }
+    .fireflies span:nth-child(4) { left: 86%; bottom: 30%; animation-delay: 3.5s; width: 4px; height: 4px; }
+    .fireflies span:nth-child(5) { left: 48%; bottom: 20%; animation-delay: 2.8s; }
+    .fireflies span:nth-child(6) { left: 62%; bottom: 14%; animation-delay: 4.5s; }
+    @keyframes fly {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+      15% { opacity: 1; }
+      50% { transform: translate(-16px, -40px) scale(1.1); }
+      85% { opacity: 0.9; }
+      100% { opacity: 0; transform: translate(10px, -90px) scale(0.9); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .moon, .stars, .wave, .scene::before, .fireflies span { animation: none !important; }
+      .stars { opacity: 0.82; }
+    }
+
+    /* ========== 主内容 ========== */
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 5vw, 40px);
+    }
+
+    .step {
+      display: none;
+      width: min(720px, 100%);
+      text-align: center;
+    }
+    .step.active {
+      display: block;
+      animation: step-enter var(--fade-ms) ease forwards;
+    }
+    .step.active.fade-out {
+      animation: step-leave var(--fade-ms) ease forwards;
+    }
+    @keyframes step-enter {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes step-leave {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    h1, .headline {
+      font-size: clamp(1.45rem, 5vw, 2.05rem);
+      line-height: 1.55;
+      text-shadow: 0 4px 24px var(--shadow-pink), 0 0 40px rgba(99, 102, 241, 0.25);
+      margin-bottom: clamp(1.5rem, 5vw, 2.25rem);
+      color: var(--text-main);
+    }
+
+    .lead {
+      font-size: clamp(1.15rem, 4.2vw, 1.45rem);
+      line-height: 1.65;
+      color: var(--text-soft);
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 选择区：「不愿意」在该盒子里绝对定位并随机逃窜，避免坐标与父级不一致 */
+    .choice-area {
+      position: relative;
+      min-height: 220px;
+      margin-top: 0.5rem;
+      padding: 1.25rem 1rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .choice-area .btn-yes {
+      position: relative;
+      z-index: 2;
+      margin-top: 6px;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1.85rem;
+      font-size: clamp(1.05rem, 3.8vw, 1.25rem);
+      letter-spacing: 0.06em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    button:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb6d9 0%, #e9a6ff 48%, #a5b4fc 100%);
+      color: #1a0b24;
+      box-shadow: 0 10px 36px rgba(255, 170, 210, 0.45);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 42px rgba(255, 170, 210, 0.55);
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #ffd6ec, #c4b5fd);
+      color: #22102e;
+      box-shadow: 0 10px 32px rgba(196, 181, 253, 0.45);
+      min-width: 8.5rem;
+    }
+    .btn-yes:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(255, 192, 227, 0.5);
+    }
+
+    /* “不愿意”：由脚本设为 position:absolute 并在容器内跳动 */
+    .btn-no {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 210, 240, 0.35);
+      backdrop-filter: blur(6px);
+      min-width: 8.5rem;
+    }
+
+    /* 情书全屏阅读区 */
+    .letter-panel {
+      width: min(680px, 100%);
+      max-height: min(86vh, 720px);
+      overflow-y: auto;
+      padding: clamp(20px, 4vw, 36px);
+      border-radius: 22px;
+      background: linear-gradient(165deg, rgba(16, 36, 70, 0.62), rgba(40, 24, 58, 0.5));
+      border: 1px solid rgba(255, 200, 230, 0.22);
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      text-align: left;
+    }
+
+    .letter-panel h2 {
+      text-align: center;
+      font-size: clamp(1.35rem, 4.5vw, 1.75rem);
+      margin-bottom: 1.25rem;
+      color: #ffe9fb;
+      text-shadow: 0 2px 20px var(--shadow-pink);
+    }
+
+    #letterBody {
+      font-size: clamp(1.05rem, 3.6vw, 1.22rem);
+      line-height: 1.85;
+      color: var(--text-soft);
+      white-space: pre-wrap;
+      min-height: 12em;
+    }
+    #letterBody .caret::after {
+      content: "▍";
+      margin-left: 2px;
+      color: rgba(255, 200, 230, 0.85);
+      animation: caret-blink 1s step-end infinite;
+    }
+    @keyframes caret-blink { 50% { opacity: 0; } }
+
+    /* 首访音频提示（浏览器拦截自动播放时显示） */
+    .audio-hint {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(12, 24, 48, 0.72);
+      border: 1px solid rgba(255, 200, 230, 0.3);
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      display: none;
+      pointer-events: none;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    }
+    .audio-hint.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <div class="waves" aria-hidden="true">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+    </div>
+    <div class="fireflies" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="audioHint" class="audio-hint" role="status">轻触任意处开启背景音乐 ♪</div>
+
+  <main>
+    <!-- 步骤1：初始确认 -->
+    <section id="step1" class="step active" aria-label="确认页">
+      <p class="lead">
+        你确定要点开这个链接吗？这可能会失去一个重要的东西，但也可能得到一份珍贵的礼物
+      </p>
+      <div class="btn-row">
+        <button type="button" class="btn-primary" id="btnOpen">确定点开</button>
+      </div>
+    </section>
+
+    <!-- 步骤2：表白选择 -->
+    <section id="step2" class="step" aria-label="选择页">
+      <h1 class="headline">你愿意做我女朋友吗？</h1>
+      <div class="choice-area" id="choiceArea">
+        <button type="button" class="btn-yes" id="btnYes">愿意</button>
+        <button type="button" class="btn-no" id="btnNo" tabindex="-1">不愿意</button>
+      </div>
+    </section>
+
+    <!-- 步骤3：情书（打字机） -->
+    <section id="step3" class="step" aria-label="情书页">
+      <div class="letter-panel">
+        <h2>写给你的情书</h2>
+        <div id="letterBody" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+(function () {
+  "use strict";
+
+  /**
+   * 在线音频配置（均为公网可直链的免版税 / 演示资源；若个别网络环境无法访问，可自行替换同字段 URL）
+   * BGM1：钢琴氛围（-archive.org Debussy 公版演绎）+ 海浪环境音（Freesound 预览短循环）
+   * BGM2 / BGM3：SoundHelix 官方示例曲（不同编曲，用作“心动节奏”与“抒情收尾”）
+   */
+  var AUDIO = {
+    step1Main: "https://archive.org/download/ClairDeLunedebussy/Clair%20De%20Lune%20%28Clair%20De%20Lune%29.mp3",
+    step1Ocean: "https://cdn.freesound.org/previews/316/316847_4939433-lq.mp3",
+    step2: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    step3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    tap: "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3",
+    regret: "https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"
+  };
+
+  var step = 1;
+  var reachedLoveLetter = false; /* 进入并成功展示情书则为 true，用于离开页面时是否播放遗憾音 */
+  var audioUnlocked = false;
+
+  var elStep1 = document.getElementById("step1");
+  var elStep2 = document.getElementById("step2");
+  var elStep3 = document.getElementById("step3");
+  var letterBody = document.getElementById("letterBody");
+  var choiceArea = document.getElementById("choiceArea");
+  var btnNo = document.getElementById("btnNo");
+  var audioHint = document.getElementById("audioHint");
+
+  /* 背景音乐：步骤1 双轨，其余单轨 */
+  var bgmMain = new Audio();
+  var bgmExtra = new Audio();
+  bgmMain.loop = true;
+  bgmExtra.loop = true;
+  bgmMain.preload = "auto";
+  bgmExtra.preload = "auto";
+  /* 音量：适中 */
+  var VOL = { main: 0.32, ocean: 0.14, s2: 0.3, s3: 0.3, sfx: 0.42 };
+
+  function playSfx(url) {
+    try {
+      var a = new Audio(url);
+      a.volume = VOL.sfx;
+      a.play().catch(function () {/* 忽略 */});
+    } catch (e) { /* 忽略 */ }
+  }
+
+  function stopDualBgm() {
+    bgmMain.pause();
+    bgmExtra.pause();
+  }
+
+  function setBgmStep(which) {
+    stopDualBgm();
+    bgmMain.currentTime = 0;
+    bgmExtra.currentTime = 0;
+    if (which === 1) {
+      bgmMain.src = AUDIO.step1Main;
+      bgmExtra.src = AUDIO.step1Ocean;
+      bgmMain.volume = VOL.main;
+      bgmExtra.volume = VOL.ocean;
+      bgmMain.play().catch(function () { showAudioHint(); });
+      bgmExtra.play().catch(function () {/* 海浪失败不影响主曲 */});
+    } else if (which === 2) {
+      bgmExtra.removeAttribute("src");
+      bgmMain.src = AUDIO.step2;
+      bgmMain.volume = VOL.s2;
+      bgmMain.play().catch(function () { showAudioHint(); });
+    } else if (which === 3) {
+      bgmExtra.removeAttribute("src");
+      bgmMain.src = AUDIO.step3;
+      bgmMain.volume = VOL.s3;
+      bgmMain.play().catch(function () { showAudioHint(); });
+    }
+  }
+
+  function showAudioHint() {
+    audioHint.classList.add("show");
+  }
+  function hideAudioHint() {
+    audioHint.classList.remove("show");
+  }
+
+  function markAudioUnlocked() {
+    audioUnlocked = true;
+    hideAudioHint();
+  }
+
+  /* 首次交互：在自动播放被拦截时，用本次手势强制恢复当前步骤 BGM */
+  document.addEventListener(
+    "pointerdown",
+    function onUnlockAudio() {
+      if (!audioUnlocked) {
+        setBgmStep(step);
+        markAudioUnlocked();
+      }
+    },
+    { once: true }
+  );
+
+  /* 启动：尽量自动播步骤1 BGM；失败则提示轻触开启 */
+  setBgmStep(1);
+  bgmMain.addEventListener("play", markAudioUnlocked);
+  bgmExtra.addEventListener("play", markAudioUnlocked);
+  setTimeout(function () {
+    if (!audioUnlocked) showAudioHint();
+  }, 600);
+
+  /* ---------- 步骤切换（淡入淡出） ---------- */
+  function goStep(next) {
+    var curEl = step === 1 ? elStep1 : step === 2 ? elStep2 : elStep3;
+    var nextEl = next === 1 ? elStep1 : next === 2 ? elStep2 : elStep3;
+    curEl.classList.add("fade-out");
+    window.setTimeout(function () {
+      curEl.classList.remove("active", "fade-out");
+      nextEl.classList.add("active");
+      step = next;
+      if (next === 2) {
+        setBgmStep(2);
+        layoutNoButton();
+      } else if (next === 3) {
+        setBgmStep(3);
+        startLetterTypewriter();
+      }
+    }, 720);
+  }
+
+  document.getElementById("btnOpen").addEventListener("click", function () {
+    playSfx(AUDIO.tap);
+    goStep(2);
+  });
+
+  document.getElementById("btnYes").addEventListener("click", function () {
+    playSfx(AUDIO.tap);
+    reachedLoveLetter = true;
+    goStep(3);
+  });
+
+  /* “不愿意”：理论上点不到；若异常接收到点击 / 触摸落定则播放遗憾音效 */
+  btnNo.addEventListener("click", function () {
+    playSfx(AUDIO.regret);
+  });
+  btnNo.addEventListener("pointerdown", function (e) {
+    /* 降低极个别环境下“误触落定”的概率；遗憾音仅在试图选择「不愿意」时播放 */
+    e.preventDefault();
+    playSfx(AUDIO.regret);
+    moveNoButton();
+  });
+
+  /* 鼠标靠近就跑：mouseenter / mousemove（无键盘陷阱：tabindex=-1） */
+  btnNo.addEventListener("mouseenter", function () { moveNoButton(); });
+  btnNo.addEventListener("mousemove", function () { moveNoButton(); });
+
+  function layoutNoButton() {
+    btnNo.style.position = "absolute";
+    moveNoButton();
+  }
+
+  function moveNoButton() {
+    /* 相对 .choice-area（position:relative）计算，避免 getBoundingClientRect 与 offset 坐标系混用 */
+    var padding = 12;
+    var aw = choiceArea.clientWidth;
+    var ah = choiceArea.clientHeight;
+    var bw = btnNo.offsetWidth || 120;
+    var bh = btnNo.offsetHeight || 48;
+    var maxX = Math.max(padding, aw - bw - padding);
+    var maxY = Math.max(padding, ah - bh - padding);
+    var nx = padding + Math.random() * maxX;
+    var ny = padding + Math.random() * maxY;
+    btnNo.style.left = nx + "px";
+    btnNo.style.top = ny + "px";
+  }
+
+  /* 触摸设备：手指进入选择区靠近“不愿意”时也可触发位移 */
+  choiceArea.addEventListener("touchmove", function (ev) {
+    var t = ev.touches[0];
+    if (!t) return;
+    var r = btnNo.getBoundingClientRect();
+    var ex = t.clientX;
+    var ey = t.clientY;
+    if (ex >= r.left - 20 && ex <= r.right + 20 && ey >= r.top - 20 && ey <= r.bottom + 20) {
+      moveNoButton();
+    }
+  }, { passive: true });
+
+  /* ---------- 离开页面 / 关闭标签：步骤1~2 播放遗憾音（尽力而为，部分浏览器会静音） ---------- */
+  window.addEventListener("pagehide", function () {
+    /* 已进入情书页（含过渡中点了「愿意」）则不播放遗憾音 */
+    if (step < 3 && !reachedLoveLetter) {
+      try {
+        var a = new Audio(AUDIO.regret);
+        a.volume = VOL.sfx;
+        a.play();
+      } catch (err) { /* 忽略 */ }
+    }
+  });
+
+  /* ---------- 情书：逐行打字机 ---------- */
+  var letterLines = [
+    "【初见心动】",
+    "",
+    "第一眼见到你的时候，我的世界像被海风轻轻点亮。心跳不争气地加速，手心微微发烫，连呼吸都变得小心翼翼——紧张，却又忍不住欢喜，像整片夏夜的星星都在为我眨眼。",
+    "",
+    "【日常愉快相处】",
+    "",
+    "后来的每一份琐碎，都变成了礼物：聊到天亮的对话框、并肩走过的小路、你笑起来弯起的眼睛——原来陪伴就是这样温柔的一件事，让我在平凡里也能尝到草莓糖似的甜。",
+    "",
+    "【想与你走下去】",
+    "",
+    "我想认真地告诉你：我喜欢你，不是一时兴起的风，而是想和你一起看潮汐、等日出、把每个夏天都过成我们的纪念。愿意的话，让我牵着你的手，从这片海边，一直走到很远很远的以后。"
+  ];
+
+  var typeTimer = null;
+  function startLetterTypewriter() {
+    letterBody.innerHTML = "";
+    var lineIndex = 0;
+    var charIndex = 0;
+    var built = "";
+    var lineBuf = "";
+
+    function tick() {
+      if (lineIndex >= letterLines.length) {
+        letterBody.innerHTML = built + '<span class="caret"></span>';
+        window.clearInterval(typeTimer);
+        typeTimer = null;
+        /* 结束后移除光标闪烁节点，仅保留文字 */
+        window.setTimeout(function () {
+          letterBody.textContent = built;
+        }, 900);
+        return;
+      }
+      var line = letterLines[lineIndex];
+      if (charIndex < line.length) {
+        lineBuf += line.charAt(charIndex);
+        charIndex++;
+        letterBody.innerHTML = built + lineBuf + '<span class="caret"></span>';
+      } else {
+        built += line + "\n";
+        lineBuf = "";
+        lineIndex++;
+        charIndex = 0;
+        letterBody.innerHTML = built + '<span class="caret"></span>';
+      }
+    }
+
+    typeTimer = window.setInterval(tick, 42);
+  }
+})();
+  </script>
+</body>
+</html>
